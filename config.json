@@ -1,5 +1,6 @@
 {
     "retry_count": 3,
-    "primary_service_url": "http://127.0.0.1:5000/cliente/5",
-    "backup_service_url": "http://127.0.0.1:5000/cliente/2"
+    "primary_service_url": "http://127.0.0.1:5000/cliente/1",
+    "backup_service_url": "http://127.0.0.1:5000/cliente/2",
+    "simulate_error_count": 5
 }
