@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 import json
 import time
 
@@ -43,6 +43,19 @@ def monitor(url):
 
     return None
 
+def monitor2(url):
+    for attempt in range(retry_count):
+        print(f"Reintentando llamado al servicio {url}")
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response
+        
+        attempt += 1
+        time.sleep(0.5)
+
+    return None
+
+
 # Ruta del API Gateway
 @app.route('/gateway', methods=['GET'])
 def gateway():
@@ -54,16 +67,43 @@ def gateway():
         print("Cambiando al servicio de respaldo...")
         call_counter = 0
         if current_service == primary_service:
-            current_service=backup_service
+            current_service = backup_service
         else:
-            current_service=primary_service
+            current_service = primary_service
+        
         response = monitor(current_service)
-
 
         if response is None:
             return jsonify({"error": "Todos los servicios fallaron"}), 503
     
     return jsonify(response.json()), response.status_code
+
+# Ruta del API Gateway
+@app.route('/gateway/v2', methods=['GET'])
+def gateway2():
+    global current_service
+
+    response = requests.get(current_service)
+
+    if (response.status_code == 200):
+        return jsonify(response.json()), response.status_code
+    else: 
+        response = monitor2(current_service)
+
+        if response is None:
+            print("Cambiando al servicio de respaldo...")
+            
+            if current_service == primary_service:
+                current_service = backup_service
+            else:
+                current_service = primary_service
+                
+            response = requests.get(current_service)
+
+            if (response.status_code == 200):
+                return jsonify(response.json()), response.status_code
+
+        return jsonify({"error": "Todos los servicios fallaron"}), 503
 
 if __name__ == '__main__':
     app.run(port=5001)
