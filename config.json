@@ -1,5 +1,5 @@
 {
-    "retry_count": 3,
-    "primary_service_url": "http://127.0.0.1:5001/cliente/1",
-    "backup_service_url": "http://127.0.0.1:5002/cliente/1"
+    "users_service_url": "http://127.0.0.1:5001/",
+    "clients_service_url": "http://127.0.0.1:5002/cliente/1",
+    "SECRET_KEY": "frase-secreta"
 }
