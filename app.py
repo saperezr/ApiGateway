@@ -31,11 +31,11 @@ def call_register():
     response = requests.post(users_service+'/register', json=request.json)
     
     if (response.status_code == 200):
-        write_log(users_service, response.status_code, 'Registro Exitoso')
+        write_log(users_service, response.status_code, 'Registro Exitoso: '+response.json())
         return jsonify(response.json()), response.status_code
     else: 
-        write_log(users_service, response.status_code, 'Fallo en el registro')
-        return jsonify({"error": "Fallo en el registro"}), 503
+        write_log(users_service, response.status_code, 'Fallo en el registro: '+response.json())
+        return jsonify(response.json()), 503
 
 if __name__ == '__main__':
     app.run(port=5000)
@@ -48,12 +48,13 @@ def call_login():
     response = requests.post(users_service+'/login', json=request.json)
     
     if (response.status_code == 200):
-        write_log(users_service, response.status_code, 'Inicio de Sesion Exitoso')
+        write_log(users_service, response.status_code, 'Inicio de Sesion Exitoso: '+response.json())
         return jsonify(response.json()), response.status_code
     else: 
-        write_log(users_service, response.status_code, 'Fallo en el inicio de sesion')
-        return jsonify({"error": "Fallo en el inicio de sesion"}), 503
+        write_log(users_service, response.status_code, 'Fallo en el inicio de sesion: '+response.json())
+        return jsonify(response.json()), 503
     
+
 @app.route('/gateway/clients', methods=['GET'])
 def call_clients():
     global clients_service
@@ -68,19 +69,22 @@ def call_clients():
     try:
        
         decoded_token = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-        user_type = decoded_token.get('user_type')
+        user_type = decoded_token['sub']['user_type']
 
         write_log(clients_service, 'N/A', f'GET Clientes - User Type: {user_type}')
         
-
-        response = requests.get(clients_service)
-        
-        if response.status_code == 200:
-            write_log(clients_service, response.status_code, 'Consulta de Clientes Exitosa')
-            return jsonify(response.json()), response.status_code
+        if user_type != 1:
+            write_log(clients_service, 403, 'No autorizado para consultar clientes')
+            return jsonify({"error": "No autorizado para consultar clientes"}), 403
         else:
-            write_log(clients_service, response.status_code, 'Fallo en la consulta de clientes')
-            return jsonify({"error": "Fallo en la consulta de clientes"}), 503
+            response = requests.get(clients_service)
+            
+            if response.status_code == 200:
+                write_log(clients_service, response.status_code, 'Consulta de Clientes Exitosa')
+                return jsonify(response.json()), response.status_code
+            else:
+                write_log(clients_service, response.status_code, 'Fallo en la consulta de clientes')
+                return jsonify({"error": "Fallo en la consulta de clientes"}), 503
 
     except jwt.ExpiredSignatureError:
         return jsonify({"error": "El token ha expirado!"}), 401
