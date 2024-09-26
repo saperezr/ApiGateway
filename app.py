@@ -31,10 +31,10 @@ def call_register():
     response = requests.post(users_service+'/register', json=request.json)
     
     if (response.status_code == 200):
-        write_log(users_service, response.status_code, 'Registro Exitoso: '+response.json())
+        write_log(users_service, response.status_code, 'Registro Exitoso: ' + json.dumps(response.json()))
         return jsonify(response.json()), response.status_code
     else: 
-        write_log(users_service, response.status_code, 'Fallo en el registro: '+response.json())
+        write_log(users_service, response.status_code, 'Fallo en el registro: '+json.dumps(response.json()))
         return jsonify(response.json()), 503
 
 if __name__ == '__main__':
@@ -48,10 +48,10 @@ def call_login():
     response = requests.post(users_service+'/login', json=request.json)
     
     if (response.status_code == 200):
-        write_log(users_service, response.status_code, 'Inicio de Sesion Exitoso: '+response.json())
+        write_log(users_service, response.status_code, 'Inicio de Sesion Exitoso: '+ json.dumps(response.json()))
         return jsonify(response.json()), response.status_code
     else: 
-        write_log(users_service, response.status_code, 'Fallo en el inicio de sesion: '+response.json())
+        write_log(users_service, response.status_code, 'Fallo en el inicio de sesion: ' + json.dumps(response.json()))
         return jsonify(response.json()), 503
     
 
@@ -77,7 +77,8 @@ def call_clients():
             write_log(clients_service, 403, 'No autorizado para consultar clientes')
             return jsonify({"error": "No autorizado para consultar clientes"}), 403
         else:
-            response = requests.get(clients_service)
+            headers = {'Authorization': f'Bearer {token}'}
+            response = requests.get(clients_service, headers=headers)
             
             if response.status_code == 200:
                 write_log(clients_service, response.status_code, 'Consulta de Clientes Exitosa')

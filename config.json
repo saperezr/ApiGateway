@@ -1,5 +1,5 @@
 {
     "users_service_url": "http://127.0.0.1:5001/",
-    "clients_service_url": "http://127.0.0.1:5002/cliente/1",
+    "clients_service_url": "http://127.0.0.1:5002/cliente",
     "SECRET_KEY": "frase-secreta"
 }
